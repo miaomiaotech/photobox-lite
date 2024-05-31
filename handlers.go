@@ -65,7 +65,15 @@ func APIUpload(c *gin.Context) {
 		log.Println(err)
 	}
 
-	// response
+	if uploadCallback != "" {
+		go func() {
+			code, stdout, stderr := RunSimpleCommand(uploadCallback)
+			log.Printf("exit: %d", code)
+			log.Printf("stdout: %s", stdout)
+			log.Printf("stderr: %s", stderr)
+		}()
+	}
+
 	c.JSON(http.StatusOK, res)
 }
 

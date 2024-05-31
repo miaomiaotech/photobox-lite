@@ -20,6 +20,8 @@ var (
 	defaultThumbMaxWidth  = 1280
 	defaultThumbMaxHeight = 1280
 	defaultQuality        = 80
+	uploadCallback        = ""
+	TEST_CALLBACK         = os.Getenv("TEST_CALLBACK") == "1"
 )
 
 func init() {
@@ -27,17 +29,30 @@ func init() {
 	flag.StringVar(&ImageDomain, "domain", ImageDomain, "photos storage domain name")
 	flag.StringVar(&listen, "listen", listen, "bind [<host>]:<port>")
 	flag.StringVar(&redisDefault, "redis", redisDefault, "redis <host>:<port>")
+	flag.StringVar(&uploadCallback, "callback", uploadCallback, "executable to run after upload a image")
 	flag.IntVar(&redisDB, "db", redisDB, "redis database")
 	flag.Parse()
 	if !strings.HasPrefix(ImageDomain, "http") {
 		ImageDomain = "http://" + ImageDomain
 	}
+}
 
+func init2() {
 	initRedisCache()
 	imageupload.InitLibHeifWorker(os.Getenv("LIB_HEIF_PLUGIN"))
 }
 
 func main() {
+	if TEST_CALLBACK {
+		code, stdout, stderr := RunSimpleCommand(uploadCallback)
+		log.Printf("exit code: %d", code)
+		log.Printf("stdout: %s", stdout)
+		log.Printf("stderr: %s", stderr)
+		return
+	}
+
+	init2()
+
 	r := gin.Default()
 	r.StaticFS("/origin", gin.Dir(path.Join(DataDir, "origin"), false))
 	r.StaticFS("/thumb", gin.Dir(path.Join(DataDir, "thumb"), false))
