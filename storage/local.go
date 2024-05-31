@@ -19,6 +19,7 @@ func (s *LocalStorage) Save(fp string) error {
 
 	return s.Img.Save(fp)
 }
+
 func (s *LocalStorage) Read(fp string) ([]byte, error) {
 	return os.ReadFile(fp)
 }

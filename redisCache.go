@@ -9,10 +9,10 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var codec *cache.Cache
+var redisCache *cache.Cache
 
-func initCodec() {
-	_, codec = NewRedisCache(map[string]string{"default": redisDefault}, redisDB)
+func initRedisCache() {
+	_, redisCache = NewRedisCache(map[string]string{"default": redisDefault}, redisDB)
 }
 
 func NewRedisCache(hostPort map[string]string, db int) (*redis.Ring, *cache.Cache) {
@@ -21,7 +21,7 @@ func NewRedisCache(hostPort map[string]string, db int) (*redis.Ring, *cache.Cach
 		DB:    db,
 	})
 
-	codec := cache.New(&cache.Options{
+	cacheDefault := cache.New(&cache.Options{
 		Redis:      ring,
 		LocalCache: cache.NewTinyLFU(1000, time.Hour),
 		Marshal: func(v interface{}) ([]byte, error) {
@@ -32,11 +32,11 @@ func NewRedisCache(hostPort map[string]string, db int) (*redis.Ring, *cache.Cach
 		},
 	})
 
-	return ring, codec
+	return ring, cacheDefault
 }
 
 func CacheSet(key string, obj interface{}) error {
-	return codec.Set(&cache.Item{
+	return redisCache.Set(&cache.Item{
 		Key:   key,
 		Value: obj,
 		TTL:   time.Hour * 24 * 365,
@@ -44,5 +44,5 @@ func CacheSet(key string, obj interface{}) error {
 }
 
 func CacheGet(ctx context.Context, key string, obj interface{}) error {
-	return codec.Get(ctx, key, obj)
+	return redisCache.Get(ctx, key, obj)
 }

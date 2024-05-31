@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"path"
 	"strings"
 
 	"github.com/nfnt/resize"
@@ -25,7 +26,7 @@ func ThumbnailJPEG(i *Image, width int, height int, quality int) (*Image, error)
 
 	data := buf.Bytes()
 	t := &Image{
-		Filename:    thumbTempName,
+		Filename:    ReplaceFileExt(path.Base(i.Filename), "jpg"),
 		ContentType: "image/jpeg",
 		Format:      format,
 		Data:        data,
@@ -51,7 +52,7 @@ func ThumbnailPNG(i *Image, width int, height int) (*Image, error) {
 
 	data := buf.Bytes()
 	t := &Image{
-		Filename:    thumbTempName,
+		Filename:    ReplaceFileExt(path.Base(i.Filename), "png"),
 		ContentType: "image/png",
 		Format:      format,
 		Data:        data,
@@ -70,4 +71,19 @@ func Thumbnail(img *Image, width, height, quality int) (*Image, error) {
 	} else {
 		return ThumbnailJPEG(img, width, height, quality)
 	}
+}
+
+func ReplaceFileExt(filePath, newExtension string) string {
+	if newExtension != "" && newExtension[0] != '.' {
+		newExtension = "." + newExtension
+	}
+
+	// 如果文件路径中不包含点，则直接添加新后缀名
+	if strings.LastIndex(filePath, ".") == -1 {
+		return filePath + newExtension
+	}
+
+	fileName := filePath[:strings.LastIndex(filePath, ".")]
+	newExtension = strings.ToLower(newExtension)
+	return fileName + newExtension
 }

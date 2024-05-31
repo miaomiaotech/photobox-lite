@@ -13,12 +13,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
-)
 
-const thumbTempName = "thumbnail.jpg"
+	"github.com/klippa-app/go-libheif"
+)
 
 type Image struct {
 	Filename    string `json:"filename"`
@@ -41,14 +40,7 @@ func (i *Image) Save(filename string) error {
 		return err
 	}
 
-	err = os.WriteFile(filename, i.Data, 0644)
-	if err == nil {
-		// update the temp name
-		if i.Filename == thumbTempName {
-			i.Filename = path.Base(filename)
-		}
-	}
-	return err
+	return os.WriteFile(filename, i.Data, 0644)
 }
 
 // Convert image to base64 data uri.
@@ -82,7 +74,8 @@ func LimitFileSize(maxSize int64, w http.ResponseWriter, r *http.Request) {
 }
 
 func okContentType(contentType string) bool {
-	return contentType == "image/png" || contentType == "image/jpeg" || contentType == "image/gif"
+	return contentType == "image/png" || contentType == "image/jpeg" || contentType == "image/gif" ||
+		contentType == "image/webp" || heicContentType(contentType)
 }
 
 // Process uploaded file into an image.
@@ -102,7 +95,16 @@ func Process(r *http.Request, field string) (*Image, error) {
 		return nil, err
 	}
 
-	img, format, err := image.Decode(bytes.NewReader(data))
+	var img image.Image
+	if heicContentType(contentType) {
+		img, err = libheif.DecodeImage(bytes.NewReader(data))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var format string
+	img, format, err = image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}

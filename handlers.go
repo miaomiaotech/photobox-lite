@@ -37,24 +37,29 @@ func APIUpload(c *gin.Context) {
 		return
 	}
 
-	pu := genImgPathUrl(img.Md5, img.Format)
+	pathAndUrl := genImgPathUrl(img.Md5, img.Format)
+	thumbnailImage.Filename = path.Base(pathAndUrl.ThumbPath)
 
 	// save origin image
-	err = saveImage(DataDir, pu.OriginPath, img)
+	err = saveImage(DataDir, pathAndUrl.OriginPath, img)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// save thumbnail image
-	err = saveImage(DataDir, pu.ThumbPath, thumbnailImage)
+	err = saveImage(DataDir, pathAndUrl.ThumbPath, thumbnailImage)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// save redis cache
-	res := UploadResponse{img, thumbnailImage, &pu}
+	res := UploadResponse{
+		Image: img,
+		Thumb: thumbnailImage,
+		Data:  &pathAndUrl,
+	}
 	err = CacheSet(img.Md5, &res)
 	if err != nil {
 		log.Println(err)
@@ -83,8 +88,8 @@ func saveImage(dir, keyPath string, img *imageupload.Image) error {
 }
 
 func getThumbParams(c *gin.Context) (int, int, int) {
-	width := defaultMaxWidth
-	height := defaultMaxHeight
+	width := defaultThumbMaxWidth
+	height := defaultThumbMaxHeight
 	quality := defaultQuality
 	if str, ok := c.GetQuery("width"); ok {
 		if v, e := strconv.Atoi(str); e == nil {

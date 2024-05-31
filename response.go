@@ -29,11 +29,12 @@ func genImgPathUrl(hash, format string) ImagePathUrl {
 		format = "jpg"
 	}
 	suffix := path.Join(now.Format("2006-01-02"), fmt.Sprintf("%d_%v.%v", now.Unix(), hash, format))
-	o, t := path.Join("origin", suffix), path.Join("thumb", suffix)
+	origin, thumb := path.Join("origin", suffix), path.Join("thumb", imageupload.ReplaceFileExt(suffix, "jpg"))
 	return ImagePathUrl{
-		o, t,
-		joinURI(ImageDomain, o),
-		joinURI(ImageDomain, t),
+		OriginPath: origin,
+		ThumbPath:  thumb,
+		OriginURL:  joinURI(ImageDomain, origin),
+		ThumbURL:   joinURI(ImageDomain, thumb),
 	}
 }
 
