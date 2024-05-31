@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -83,7 +84,7 @@ func APIUpload(c *gin.Context) {
 
 	if uploadCallback != "" {
 		go func() {
-			code, stdout, stderr := RunSimpleCommand(uploadCallback)
+			code, stdout, stderr := RunSimpleCommand(fmt.Sprintf("bash -c '%s'", uploadCallback))
 			log.Printf("exit: %d", code)
 			log.Printf("stdout: %s", stdout)
 			log.Printf("stderr: %s", stderr)
