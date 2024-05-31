@@ -11,15 +11,19 @@ import (
 )
 
 var (
-	DataDir               = "photos"
-	ImageDomain           = "http://photobox.drink.cafe"
-	listen                = ":5000"
-	redisDefault          = "127.0.0.1:6379"
-	redisDB               = 8
+	DataDir      = "photos"
+	ImageDomain  = "http://photobox.drink.cafe"
+	listen       = ":5000"
+	redisDefault = "127.0.0.1:6379"
+	redisDB      = 8
+
+	maxWidthOrHeight      = 4000
+	maxQuality            = 98
 	defaultThumbMaxWidth  = 1280
 	defaultThumbMaxHeight = 1280
-	defaultQuality        = 80
+	defaultQuality        = 95
 	uploadCallback        = ""
+	PASSWORD              = ""
 	TEST_CALLBACK         = os.Getenv("TEST_CALLBACK") == "1"
 )
 
@@ -29,6 +33,7 @@ func init() {
 	flag.StringVar(&listen, "listen", listen, "bind [<host>]:<port>")
 	flag.StringVar(&redisDefault, "redis", redisDefault, "redis <host>:<port>")
 	flag.StringVar(&uploadCallback, "callback", uploadCallback, "executable to run after upload a image")
+	flag.StringVar(&PASSWORD, "password", PASSWORD, "password to upload")
 	flag.IntVar(&redisDB, "db", redisDB, "redis database")
 	flag.Parse()
 	if !strings.HasPrefix(ImageDomain, "http") {

@@ -15,7 +15,26 @@
         background: linear-gradient(to bottom right, #352482, #ea8f78);
       }
       #form {
-        zoom: 1.4;
+        zoom: 1.5;
+        height: 80px;
+        width: 20vw;
+        margin: 0 23.5vw;
+        text-align: left;
+      }
+      .right {
+        float: right;
+      }
+      #password {
+        max-width: 200px;
+        float: left;
+      }
+
+      @media screen and (max-width: 1300px) {
+        #form {
+          zoom: 1.5;
+          width: calc((100vw - 20px) / 1.5 - 8px);
+          margin: 10px;
+        }
       }
     </style>
   </head>
@@ -34,7 +53,16 @@
         id="input-file"
         accept="image/jpeg,image/png,image/heif,image/heic,image/webp"
       />
-      <input type="submit" value="Submit" />
+      <div class="right">
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+        />
+        <br />
+        <input type="submit" value="Submit" class="right" />
+      </div>
     </form>
     <br />
     <img src="" id="image-preview" width="100vw" />

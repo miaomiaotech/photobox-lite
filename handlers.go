@@ -13,6 +13,12 @@ import (
 
 // APIUpload and generate thumbnail
 func APIUpload(c *gin.Context) {
+	pw := c.Request.FormValue("password")
+	if pw != PASSWORD {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "password incorrect"})
+		return
+	}
+
 	img, err := imageupload.Process(c.Request, "file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -26,6 +32,16 @@ func APIUpload(c *gin.Context) {
 		if storage.Exist(cacheRes.Image.Path) && storage.Exist(cacheRes.Thumb.Path) {
 			log.Printf("hit cache %v", img.Md5)
 			c.JSON(http.StatusOK, cacheRes)
+			return
+		}
+	}
+
+	// limit the origin size
+	if img.ContentType == "image/jpeg" {
+		log.Printf("compress origin %s", img.Filename)
+		img, err = imageupload.Thumbnail(img, maxWidthOrHeight, maxWidthOrHeight, maxQuality)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 	}
