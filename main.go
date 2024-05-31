@@ -17,6 +17,7 @@ var (
 	redisDefault = "127.0.0.1:6379"
 	redisDB      = 8
 
+	dateFormat            = "2006-01" // one directory each month
 	maxWidthOrHeight      = 4000
 	maxQuality            = 98
 	defaultThumbMaxWidth  = 1280

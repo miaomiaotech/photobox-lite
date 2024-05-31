@@ -28,7 +28,8 @@ func genImgPathUrl(hash, format string) ImagePathUrl {
 	if format == "jpeg" {
 		format = "jpg"
 	}
-	suffix := path.Join(now.Format("2006-01-02"), fmt.Sprintf("%d_%v.%v", now.Unix(), hash, format))
+
+	suffix := path.Join(now.Format(dateFormat), fmt.Sprintf("%v.%v", hash, format))
 	origin, thumb := path.Join("origin", suffix), path.Join("thumb", imageupload.ReplaceFileExt(suffix, "jpg"))
 	return ImagePathUrl{
 		OriginPath: origin,
