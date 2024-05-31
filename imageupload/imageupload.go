@@ -15,8 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/klippa-app/go-libheif"
 )
 
 type Image struct {
@@ -73,9 +71,9 @@ func LimitFileSize(maxSize int64, w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
 }
 
-func okContentType(contentType string) bool {
+func isAcceptedMime(contentType string) bool {
 	return contentType == "image/png" || contentType == "image/jpeg" || contentType == "image/gif" ||
-		contentType == "image/webp" || heicContentType(contentType)
+		contentType == "image/webp" || isHeifMime(contentType)
 }
 
 // Process uploaded file into an image.
@@ -86,7 +84,7 @@ func Process(r *http.Request, field string) (*Image, error) {
 	}
 
 	contentType := info.Header.Get("Content-Type")
-	if !okContentType(contentType) {
+	if !isAcceptedMime(contentType) {
 		return nil, errors.New(fmt.Sprintf("Wrong content type: %s", contentType))
 	}
 
@@ -96,13 +94,6 @@ func Process(r *http.Request, field string) (*Image, error) {
 	}
 
 	var img image.Image
-	if heicContentType(contentType) {
-		img, err = libheif.DecodeImage(bytes.NewReader(data))
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	var format string
 	img, format, err = image.Decode(bytes.NewReader(data))
 	if err != nil {

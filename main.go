@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/miaomiaotech/photobox-lite/imageupload"
 )
 
 var (
@@ -39,7 +38,6 @@ func init() {
 
 func init2() {
 	initRedisCache()
-	imageupload.InitLibHeifWorker(os.Getenv("LIB_HEIF_PLUGIN"))
 }
 
 func main() {
